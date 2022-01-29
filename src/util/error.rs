@@ -15,6 +15,7 @@ pub enum SCError {
     ParseBool(ParseBoolError),
     Utf8(Utf8Error),
     Xml(XmlError),
+    UnknownTag(String),
     Custom(String)
 }
 

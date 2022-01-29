@@ -1,6 +1,8 @@
 use std::net::TcpStream;
 use std::io::{self, BufWriter, BufReader, Read, Write};
 use log::info;
+use quick_xml::events::{Event, BytesStart};
+use quick_xml::{Reader, Writer};
 use crate::util::SCResult;
 
 const GAME_TYPE: &str = "swc_2022_ostseeschach";
@@ -42,8 +44,8 @@ impl<D> SCClient<D> where D: SCClientDelegate {
         info!("Connected to {}", address);
         
         {
-            let mut writer = BufWriter::new(&stream);
-            writer.write("<protocol>".as_bytes())?;
+            let mut writer = Writer::new(BufWriter::new(&stream));
+            writer.write_event(Event::Start(BytesStart::borrowed_name(b"protocol")))?;
             
             let join_xml = match reservation {
                 Some(res) => format!("<joinPrepared reservationCode=\"{}\" />", res),
