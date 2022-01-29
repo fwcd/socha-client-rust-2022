@@ -93,17 +93,28 @@ impl Element {
                 key: k.as_bytes(),
                 value: Cow::Borrowed(v.as_bytes()),
             }));
-        writer.write_event(Event::Start(start))?;
         
-        if !self.content.is_empty() {
-            writer.write_event(Event::Text(BytesText::from_plain(self.content.as_bytes())))?;
+        if self.childs.is_empty() {
+            // Write self-closing tag, e.g. <Element/>
+            writer.write_event(Event::Empty(start))?;
+        } else {
+            // Write opening tag, e.g. <Element>
+            writer.write_event(Event::Start(start))?;
+            
+            // Write text
+            if !self.content.is_empty() {
+                writer.write_event(Event::Text(BytesText::from_plain(self.content.as_bytes())))?;
+            }
+
+            // Write child elements
+            for child in &self.childs {
+                child.write_to(writer)?;
+            }
+            
+            // Write closing tag, e.g. </Element>
+            writer.write_event(Event::End(BytesEnd::borrowed(self.name.as_bytes())))?;
         }
 
-        for child in &self.childs {
-            child.write_to(writer)?;
-        }
-        
-        writer.write_event(Event::End(BytesEnd::borrowed(self.name.as_bytes())))?;
         Ok(())
     }
     
@@ -210,4 +221,15 @@ impl<'a> Default for ElementBuilder<'a> {
 
 impl<'a> From<ElementBuilder<'a>> for Element {
     fn from(builder: ElementBuilder<'a>) -> Self { builder.build() }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Element;
+
+    #[test]
+    fn test_write() {
+        assert_eq!("<Test/>", format!("{}", Element::new("Test").build()));
+        assert_eq!("<A><B/><C/></A>", format!("{}", Element::new("A").child(Element::new("B")).child(Element::new("C")).build()))
+    }
 }
