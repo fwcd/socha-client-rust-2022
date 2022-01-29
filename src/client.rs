@@ -3,9 +3,8 @@ use std::io::{self, BufWriter, BufReader, Read, Write};
 use log::info;
 use quick_xml::events::{Event, BytesStart};
 use quick_xml::{Reader, Writer};
-use crate::util::SCResult;
-
-const GAME_TYPE: &str = "swc_2022_ostseeschach";
+use crate::protocol::Request;
+use crate::util::{SCResult, Element};
 
 /// A handler that implements the game player's
 /// behavior, usually employing some custom move
@@ -47,12 +46,12 @@ impl<D> SCClient<D> where D: SCClientDelegate {
             let mut writer = Writer::new(BufWriter::new(&stream));
             writer.write_event(Event::Start(BytesStart::borrowed_name(b"protocol")))?;
             
-            let join_xml = match reservation {
-                Some(res) => format!("<joinPrepared reservationCode=\"{}\" />", res),
-                None => format!("<join gameType=\"{}\" />", GAME_TYPE)
-            };
-            info!("Sending join message {}", join_xml);
-            writer.write(join_xml.as_bytes())?;
+            let join_xml: Element = match reservation {
+                Some(code) => Request::JoinPrepared { reservation_code: code.to_owned() },
+                None => Request::Join,
+            }.into();
+            info!("Sending join request {}", &join_xml);
+            join_xml.write_to(&mut writer)?;
         }
         
         // Begin parsing game messages from the stream.

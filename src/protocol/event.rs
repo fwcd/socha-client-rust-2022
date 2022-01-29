@@ -1,7 +1,7 @@
 use crate::util::{Element, SCResult, SCError};
 
 /// A message from the server.
-enum Event {
+pub enum Event {
     Joined,
 }
 
