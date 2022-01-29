@@ -1,6 +1,7 @@
 use std::io::Error as IoError;
-use std::str::ParseBoolError;
+use std::str::{ParseBoolError, Utf8Error};
 use std::num::{ParseIntError, ParseFloatError};
+use quick_xml::Error as XmlError;
 
 /// A custom error type that abstracts over
 /// other errors (such as IO/XML errors) and
@@ -12,6 +13,8 @@ pub enum SCError {
     ParseInt(ParseIntError),
     ParseFloat(ParseFloatError),
     ParseBool(ParseBoolError),
+    Utf8(Utf8Error),
+    Xml(XmlError),
     Custom(String)
 }
 
@@ -29,6 +32,14 @@ impl From<ParseFloatError> for SCError {
 
 impl From<ParseBoolError> for SCError {
     fn from(error: ParseBoolError) -> Self { Self::ParseBool(error) }
+}
+
+impl From<Utf8Error> for SCError {
+    fn from(error: Utf8Error) -> Self { Self::Utf8(error) }
+}
+
+impl From<XmlError> for SCError {
+    fn from(error: XmlError) -> Self { Self::Xml(error) }
 }
 
 impl From<String> for SCError {

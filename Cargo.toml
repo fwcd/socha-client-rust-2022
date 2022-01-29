@@ -10,4 +10,4 @@ getopts = "0.2"
 log = "0.4"
 simplelog = "0.11"
 rand = "0.8"
-static-xml = { git = "https://github.com/scottlamb/static-xml.git", rev = "c657d9cf" }
+quick-xml = "0.22"
