@@ -2,6 +2,22 @@ use std::{fmt, ops::{Add, Sub, Mul, Div, DivAssign, MulAssign}};
 
 use crate::util::{Element, SCError, SCResult};
 
+/// The four vectors in cardinal direction.
+pub const CARDINALS: [Vec2; 4] = [
+    Vec2 { x: -1, y:  0 },
+    Vec2 { x:  1, y:  0 },
+    Vec2 { x:  0, y: -1 },
+    Vec2 { x:  0, y:  1 },
+];
+
+/// The four vectors in diagonal direction.
+pub const DIAGONALS: [Vec2; 4] = [
+    Vec2 { x: -1, y: -1 },
+    Vec2 { x: -1, y:  1 },
+    Vec2 { x:  1, y: -1 },
+    Vec2 { x:  1, y:  1 },
+];
+
 /// A position on the board or 2D integer vector.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Vec2 {
@@ -29,6 +45,18 @@ impl Vec2 {
     /// The y-component of this 2D vector.
     #[inline]
     pub fn y(self) -> i32 { self.y }
+
+    /// The area of the rectangle spanned by this vector.
+    #[inline]
+    pub fn area(self) -> i32 { (self.x * self.y).abs() }
+
+    /// The squared length of this vector.
+    #[inline]
+    pub fn squared_length(self) -> i32 { self.x * self.x + self.y * self.y }
+
+    /// The length of this vector.
+    #[inline]
+    pub fn length(self) -> f32 { (self.squared_length() as f32).sqrt() }
 }
 
 impl Add for Vec2 {
