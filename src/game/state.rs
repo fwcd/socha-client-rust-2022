@@ -9,12 +9,12 @@ use super::{Board, Move, Team};
 pub struct State {
     /// The game board.
     board: Board,
-    /// The most recent move.
-    last_move: Move,
     /// The ambers per team.
     ambers: HashMap<Team, usize>,
     /// The turn of the game.
     turn: usize,
+    /// The most recent move.
+    last_move: Option<Move>,
     /// The starting team.
     start_team: Option<Team>,
 }
@@ -25,7 +25,6 @@ impl TryFrom<&Element> for State {
     fn try_from(elem: &Element) -> SCResult<Self> {
         Ok(State {
             board: elem.child_by_name("board")?.try_into()?,
-            last_move: elem.child_by_name("lastMove")?.try_into()?,
             ambers: elem
                 .child_by_name("ambers")?
                 .childs_by_name("entry")
@@ -36,6 +35,7 @@ impl TryFrom<&Element> for State {
                 })
                 .collect::<SCResult<_>>()?,
             turn: elem.attribute("turn")?.parse()?,
+            last_move: elem.child_by_name("lastMove").ok().and_then(|m| m.try_into().ok()),
             start_team: elem.child_by_name("startTeam").ok().and_then(|t| t.content().parse().ok()),
         })
     }
