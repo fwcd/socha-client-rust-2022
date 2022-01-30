@@ -3,6 +3,7 @@ use std::fmt;
 
 use crate::util::{SCError, SCResult};
 
+/// A playing party in the game.
 pub enum Team {
     One,
     Two,

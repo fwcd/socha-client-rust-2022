@@ -1,5 +1,6 @@
 use crate::util::{Element, SCError, SCResult};
 
+/// The state of the game at a point in time.
 pub struct State {
     // TODO
 }

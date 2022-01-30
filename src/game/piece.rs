@@ -1,14 +1,15 @@
 use crate::util::{Element, SCError, SCResult};
 
-pub struct Team {
+/// A placeable figure on the board.
+pub struct Piece {
     // TODO
 }
 
-impl TryFrom<&Element> for Team {
+impl TryFrom<&Element> for Piece {
     type Error = SCError;
 
     fn try_from(elem: &Element) -> SCResult<Self> {
         // TODO
-        Ok(Team {})
+        Ok(Piece {})
     }
 }
