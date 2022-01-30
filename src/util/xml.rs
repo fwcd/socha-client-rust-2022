@@ -73,11 +73,13 @@ impl Element {
                 },
                 Ok(Event::Text(ref t)) => {
                     trace!("Read text event");
-                    let content = str::from_utf8(t)?;
-                    if let Some(node) = node_stack.back_mut() {
-                        node.content += content;
-                    } else {
-                        warn!("Found characters {} outside of any node", content);
+                    let content = str::from_utf8(t)?.trim();
+                    if !content.is_empty() {
+                        if let Some(node) = node_stack.back_mut() {
+                            node.content += content;
+                        } else {
+                            warn!("Found characters {} outside of any node", content);
+                        }
                     }
                 },
                 Ok(Event::Eof) => break Err(SCError::Eof),
