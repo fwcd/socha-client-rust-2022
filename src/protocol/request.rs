@@ -3,6 +3,7 @@ use crate::util::Element;
 const GAME_TYPE: &str = "swc_2022_ostseeschach";
 
 /// A message from the client.
+#[derive(Debug, Clone)]
 pub enum Request {
     /// Joins an abitrary open game.
     Join,

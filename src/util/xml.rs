@@ -12,7 +12,7 @@ use super::{SCResult, SCError};
 
 /// A deserialized, in-memory tree-representation
 /// of an XML node.
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct Element {
     name: String,
     content: String,

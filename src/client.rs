@@ -98,10 +98,13 @@ impl<D> SCClient<D> where D: SCClientDelegate {
             let event_xml = Element::read_from(&mut reader)?;
 
             debug!("Got event {}", event_xml);
-            match Event::try_from(event_xml) {
+            match Event::try_from(&event_xml) {
                 Ok(Event::Joined { room_id }) => info!("Joined room {}", room_id),
                 Ok(Event::Left { room_id }) => info!("Left room {}", room_id),
-                Err(SCError::UnknownTag(element)) => {
+                Ok(Event::Room { room_id, payload }) => {
+                    info!("Got message in room {}", room_id);
+                },
+                Err(SCError::UnknownElement(element)) => {
                     warn!("Got unknown tag <{}>: {}", element.name(), element);
                 },
                 Err(e) => {
