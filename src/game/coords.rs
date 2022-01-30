@@ -35,3 +35,17 @@ impl TryFrom<&Element> for Coords {
         Ok(Coords::new(elem.attribute("x")?.parse()?, elem.attribute("y")?.parse()?))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::{util::Element, game::Coords};
+
+    #[test]
+    fn test_parsing() {
+        assert_eq!(Coords::try_from(&Element::from_str(r#"
+            <coords x="23" y="0" />
+        "#).unwrap()).unwrap(), Coords::new(23, 0));
+    }
+}

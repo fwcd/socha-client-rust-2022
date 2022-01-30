@@ -38,3 +38,21 @@ impl TryFrom<&Element> for Piece {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::{util::Element, game::{Piece, PieceType, Team}};
+
+    #[test]
+    fn test_parsing() {
+        assert_eq!(Piece::try_from(&Element::from_str(r#"
+            <piece type="Herzmuschel" team="TWO" count="1" />
+        "#).unwrap()).unwrap(), Piece {
+            piece_type: PieceType::Herzmuschel,
+            team: Team::Two,
+            count: 1,
+        });
+    }
+}
