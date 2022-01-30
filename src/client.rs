@@ -1,6 +1,6 @@
 use std::net::TcpStream;
 use std::io::{self, BufWriter, BufReader, Read, Write};
-use log::{info, warn, debug};
+use log::{info, warn, debug, error};
 use quick_xml::events::{Event as XmlEvent, BytesStart};
 use quick_xml::{Reader, Writer};
 use crate::game::{State, Team, Move};
@@ -141,6 +141,9 @@ impl<D> SCClient<D> where D: SCClientDelegate {
                 },
                 Err(SCError::UnknownElement(element)) => {
                     warn!("Got unknown tag <{}>: {}", element.name(), element);
+                },
+                Err(SCError::ServerError(message)) => {
+                    error!("Server error: {}", message);
                 },
                 Err(e) => {
                     warn!("Error while parsing event: {:?}", e);

@@ -20,6 +20,7 @@ pub enum SCError {
     UnknownElement(Element),
     UnknownVariant(String),
     InvalidState(String),
+    ServerError(String),
     Eof,
     Custom(String)
 }

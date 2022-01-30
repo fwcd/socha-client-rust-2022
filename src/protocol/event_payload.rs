@@ -41,6 +41,7 @@ impl TryFrom<&Element> for EventPayload {
             "memento" => Ok(Self::Memento(elem.child_by_name("state")?.try_into()?)),
             "moveRequest" => Ok(Self::MoveRequest),
             "result" => Ok(Self::GameResult(elem.try_into()?)),
+            "error" => Err(SCError::ServerError(elem.attribute("message")?.to_owned())),
             _ => Err(SCError::UnknownElement(elem.clone())),
         }
     }
