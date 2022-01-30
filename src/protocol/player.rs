@@ -1,6 +1,6 @@
 use crate::{game::Team, util::{Element, SCError, SCResult}};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Player {
     name: Option<String>,
     team: Team,

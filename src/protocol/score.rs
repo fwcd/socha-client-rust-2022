@@ -10,9 +10,19 @@ pub struct Score {
 }
 
 impl Score {
+    #[inline]
     pub fn new(cause: ScoreCause, reason: &str, parts: impl IntoIterator<Item=i32>) -> Self {
         Self { cause, reason: reason.to_owned(), parts: parts.into_iter().collect() }
     }
+
+    #[inline]
+    pub fn cause(&self) -> ScoreCause { self.cause }
+    
+    #[inline]
+    pub fn reason(&self) -> &str { self.reason.as_str() }
+
+    #[inline]
+    pub fn parts(&self) -> &Vec<i32> { &self.parts }
 }
 
 impl TryFrom<&Element> for Score {

@@ -3,7 +3,7 @@ use std::str::FromStr;
 use crate::util::{SCError, SCResult};
 
 /// Determines the cause of a game score.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ScoreCause {
     Regular,
     Left,
