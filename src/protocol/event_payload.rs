@@ -5,8 +5,12 @@ use crate::util::{Element, SCResult, SCError};
 /// The actual data of a message from the server.
 #[derive(Debug, Clone)]
 pub enum EventPayload {
+    /// A welcome message by the server.
     Welcome,
+    /// A game state.
+    /// TODO: Add the actual state.
     Memento,
+    /// A request by the server to perform a move.
     MoveRequest,
 }
 
