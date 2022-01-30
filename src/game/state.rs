@@ -26,7 +26,7 @@ impl State {
 
     /// The ambers per team.
     #[inline]
-    pub fn ambera(&self) -> &HashMap<Team, usize> { &self.ambers }
+    pub fn ambers(&self) -> &HashMap<Team, usize> { &self.ambers }
 
     /// The turn of the game.
     #[inline]
