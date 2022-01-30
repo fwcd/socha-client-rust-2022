@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Index, assert_matches::assert_matches, slice::SliceIndex};
+use std::{collections::HashMap, ops::Index};
 
 use crate::util::{Element, SCError, SCResult};
 

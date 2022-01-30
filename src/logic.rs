@@ -1,6 +1,7 @@
 use log::info;
+use rand::seq::SliceRandom;
 
-use crate::{client::SCClientDelegate, game::{Move, Team, State, Vec2}};
+use crate::{client::SCClientDelegate, game::{Move, Team, State}};
 
 /// An empty game logic structure that
 /// implements the client delegate trait
@@ -11,8 +12,10 @@ pub struct OwnGameLogic;
 impl SCClientDelegate for OwnGameLogic {
     fn request_move(&mut self, state: &State, my_team: Team) -> Move {
         info!("Requested move");
-
-        // TODO
-        Move::new(Vec2::new(0, 0), Vec2::new(1, 1))
+        let chosen_move = *state.possible_moves()
+            .choose(&mut rand::thread_rng())
+            .expect("No move found!");
+        info!("Chose {:?}", chosen_move);
+        chosen_move
     }
 }

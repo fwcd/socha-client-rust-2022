@@ -67,8 +67,8 @@ impl State {
     pub fn possible_moves(&self) -> Vec<Move> {
         self.current_pieces()
             .flat_map(|(pos, piece)| piece.possible_directions()
-                .map(|delta| Move::new(pos, pos + delta))
-                .filter(|m| self.board.get(m.to()).map(|p| p.team()) != Some(piece.team())))
+                .map(move |delta| Move::new(pos, pos + delta))
+                .filter(move |m| self.board.get(m.to()).map(|p| p.team()) != Some(piece.team())))
             .collect()
     }
 
@@ -84,7 +84,7 @@ impl State {
 
     /// Fetches the child state after the given move.
     pub fn child(self, m: Move) -> State {
-        let child = self.clone();
+        let mut child = self.clone();
         child.perform(m);
         child
     }
