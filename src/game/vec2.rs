@@ -2,29 +2,33 @@ use std::{fmt, ops::{Add, Sub, Mul, Div, DivAssign, MulAssign}};
 
 use crate::util::{Element, SCError, SCResult};
 
-/// A position on the board or 2D vector.
+/// A position on the board or 2D integer vector.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Vec2 {
-    x: usize,
-    y: usize,
+    x: i32,
+    y: i32,
 }
 
 impl Vec2 {
+    /// The coordinate origin, i.e. (0, 0).
     #[inline]
     pub fn zero() -> Self {
         Self::new(0, 0)
     }
 
+    /// Creates a new vector from the given x- and y-components.
     #[inline]
-    pub fn new(x: usize, y: usize) -> Self {
+    pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
 
+    /// The x-component of this 2D vector.
     #[inline]
-    pub fn x(self) -> usize { self.x }
+    pub fn x(self) -> i32 { self.x }
 
+    /// The y-component of this 2D vector.
     #[inline]
-    pub fn y(self) -> usize { self.y }
+    pub fn y(self) -> i32 { self.y }
 }
 
 impl Add for Vec2 {
@@ -43,15 +47,15 @@ impl Sub for Vec2 {
     }
 }
 
-impl Mul<usize> for Vec2 {
+impl Mul<i32> for Vec2 {
     type Output = Self;
 
-    fn mul(self, rhs: usize) -> Self {
+    fn mul(self, rhs: i32) -> Self {
         Self::new(self.x * rhs, self.y * rhs)
     }
 }
 
-impl Mul<Vec2> for usize {
+impl Mul<Vec2> for i32 {
     type Output = Vec2;
 
     fn mul(self, rhs: Vec2) -> Vec2 {
@@ -59,23 +63,23 @@ impl Mul<Vec2> for usize {
     }
 }
 
-impl MulAssign<usize> for Vec2 {
-    fn mul_assign(&mut self, rhs: usize) {
+impl MulAssign<i32> for Vec2 {
+    fn mul_assign(&mut self, rhs: i32) {
         self.x *= rhs;
         self.y *= rhs;
     }
 }
 
-impl Div<usize> for Vec2 {
+impl Div<i32> for Vec2 {
     type Output = Self;
 
-    fn div(self, rhs: usize) -> Self {
+    fn div(self, rhs: i32) -> Self {
         Self::new(self.x / rhs, self.y / rhs)
     }
 }
 
-impl DivAssign<usize> for Vec2 {
-    fn div_assign(&mut self, rhs: usize) {
+impl DivAssign<i32> for Vec2 {
+    fn div_assign(&mut self, rhs: i32) {
         self.x /= rhs;
         self.y /= rhs;
     }
