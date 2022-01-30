@@ -65,32 +65,45 @@ impl<D> SCClient<D> where D: SCClientDelegate {
     /// Blocks the thread and parses/handles game messages
     /// from the provided reader.
     fn run(self, read: impl Read, write: impl Write) -> SCResult<()> {
+        let mut buf = Vec::new();
         let mut reader = Reader::from_reader(BufReader::new(read));
-
         let mut writer = Writer::new(BufWriter::new(write));
+
+        // Write <protocol>
         writer.write_event(XmlEvent::Start(BytesStart::borrowed_name(b"protocol")))?;
         
         // Send join request
-
         let join_xml: Element = match self.reservation_code {
             Some(code) => Request::JoinPrepared { reservation_code: code.to_owned() },
             None => Request::Join,
         }.into();
-
         info!("Sending join request {}", &join_xml);
         join_xml.write_to(&mut writer)?;
 
-        // Handle events from the server
-
+        // Read <protocol>
         loop {
-            debug!("Reading event...");
+            match reader.read_event(&mut buf)? {
+                XmlEvent::Start(ref start) if start.name() == b"protocol" => {
+                    info!("Performed handshake");
+                    break
+                },
+                XmlEvent::Text(_) => (),
+                XmlEvent::Eof => return Err(SCError::Eof),
+                e => warn!("Got unexpected event {:?}", e),
+            }
+        }
+
+        // Handle events from the server
+        loop {
             let event_xml = Element::read_from(&mut reader)?;
+
+            debug!("Got event {}", event_xml);
             match Event::try_from(event_xml) {
                 Ok(Event::Joined { room_id }) => {
                     info!("Joined room {}", room_id);
                 },
-                Err(SCError::UnknownTag(tag)) => {
-                    warn!("Got unknown tag <{}>", tag);
+                Err(SCError::UnknownTag(element)) => {
+                    warn!("Got unknown tag <{}>: {}", element.name(), element);
                 },
                 Err(e) => {
                     warn!("Error while parsing event: {:?}", e);

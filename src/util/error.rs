@@ -3,6 +3,8 @@ use std::str::{ParseBoolError, Utf8Error};
 use std::num::{ParseIntError, ParseFloatError};
 use quick_xml::Error as XmlError;
 
+use super::Element;
+
 /// A custom error type that abstracts over
 /// other errors (such as IO/XML errors) and
 /// can conveniently be used in conjunction with
@@ -15,7 +17,7 @@ pub enum SCError {
     ParseBool(ParseBoolError),
     Utf8(Utf8Error),
     Xml(XmlError),
-    UnknownTag(String),
+    UnknownTag(Element),
     Eof,
     Custom(String)
 }

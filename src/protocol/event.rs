@@ -14,7 +14,7 @@ impl TryFrom<Element> for Event {
             "joined" => Ok(Self::Joined {
                 room_id: elem.attribute("roomId")?.to_owned()
             }),
-            name => Err(SCError::UnknownTag(name.to_owned())),
+            _ => Err(SCError::UnknownTag(elem)),
         }
     }
 }
