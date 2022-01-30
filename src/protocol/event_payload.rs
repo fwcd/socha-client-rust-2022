@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::{util::{Element, SCResult, SCError}, game::State};
+use crate::{util::{Element, SCResult, SCError}, game::{State, Team}};
 
 use super::GameResult;
 
@@ -8,7 +8,7 @@ use super::GameResult;
 #[derive(Debug, Clone)]
 pub enum EventPayload {
     /// A welcome message by the server.
-    Welcome,
+    Welcome(Team),
     /// A game state.
     Memento(State),
     /// A request by the server to perform a move.
@@ -20,7 +20,7 @@ pub enum EventPayload {
 impl fmt::Display for EventPayload {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Welcome => write!(f, "Welcome"),
+            Self::Welcome(team) => write!(f, "Welcome (team: {})", team),
             Self::Memento(state) => write!(f, "Memento (turn: {})", state.turn()),
             Self::MoveRequest => write!(f, "MoveRequest"),
             Self::GameResult(result) => write!(f, "GameResult (winner: {})", result
@@ -37,7 +37,7 @@ impl TryFrom<&Element> for EventPayload {
 
     fn try_from(elem: &Element) -> SCResult<Self> {
         match elem.attribute("class")? {
-            "welcomeMessage" => Ok(Self::Welcome),
+            "welcomeMessage" => Ok(Self::Welcome(elem.attribute("color")?.parse()?)),
             "memento" => Ok(Self::Memento(elem.child_by_name("state")?.try_into()?)),
             "moveRequest" => Ok(Self::MoveRequest),
             "result" => Ok(Self::GameResult(elem.try_into()?)),

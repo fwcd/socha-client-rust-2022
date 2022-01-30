@@ -10,6 +10,16 @@ pub enum Team {
     Two,
 }
 
+impl Team {
+    /// The opponent of the given team.
+    pub fn opponent(self) -> Team {
+        match self {
+            Team::One => Team::Two,
+            Team::Two => Team::One,
+        }
+    }
+}
+
 impl fmt::Display for Team {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {

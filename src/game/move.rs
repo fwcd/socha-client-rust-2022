@@ -2,10 +2,24 @@ use crate::util::{Element, SCError, SCResult};
 
 use super::Coords;
 
+/// An action in the game.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Move {
     from: Coords,
     to: Coords,
+}
+
+impl Move {
+    #[inline]
+    pub fn new(from: Coords, to: Coords) -> Self {
+        Self { from, to }
+    }
+
+    #[inline]
+    pub fn from(&self) -> Coords { self.from }
+
+    #[inline]
+    pub fn to(&self) -> Coords { self.to }
 }
 
 impl TryFrom<&Element> for Move {

@@ -39,6 +39,13 @@ impl State {
     /// The starting team, if available.
     #[inline]
     pub fn start_team(&self) -> Option<Team> { self.start_team }
+
+    /// The current team, computed from the starting team and the turn.
+    #[inline]
+    pub fn current_team(&self) -> Option<Team> {
+        let start_team = self.start_team?;
+        Some(if self.turn % 2 == 0 { start_team } else { start_team.opponent() })
+    }
 }
 
 impl TryFrom<&Element> for State {

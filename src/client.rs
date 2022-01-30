@@ -3,14 +3,27 @@ use std::io::{self, BufWriter, BufReader, Read, Write};
 use log::{info, warn, debug};
 use quick_xml::events::{Event as XmlEvent, BytesStart};
 use quick_xml::{Reader, Writer};
-use crate::protocol::{Request, Event};
+use crate::game::{State, Team, Move};
+use crate::protocol::{Request, Event, GameResult, EventPayload};
 use crate::util::{SCResult, Element, SCError};
 
 /// A handler that implements the game player's
 /// behavior, usually employing some custom move
 /// selection strategy.
 pub trait SCClientDelegate {
-    // TODO: Add methods
+    /// Invoked whenever the game state updates.
+    fn on_update_state(&mut self, _state: &State) {}
+    
+    /// Invoked when the game ends.
+    fn on_game_end(&mut self, _result: GameResult) {}
+    
+    /// Invoked when the welcome message is received
+    /// with the player's team.
+    fn on_welcome(&mut self, _team: Team) {}
+    
+    /// Requests a move from the delegate. This method
+    /// should implement the "main" game logic.
+    fn request_move(&mut self, state: &State, my_team: Team) -> Move;
 }
 
 /// A configuration that determines whether
@@ -64,7 +77,7 @@ impl<D> SCClient<D> where D: SCClientDelegate {
     
     /// Blocks the thread and parses/handles game messages
     /// from the provided reader.
-    fn run(self, read: impl Read, write: impl Write) -> SCResult<()> {
+    fn run(mut self, read: impl Read, write: impl Write) -> SCResult<()> {
         let mut buf = Vec::new();
         let mut reader = Reader::from_reader(BufReader::new(read));
         let mut writer = Writer::new(BufWriter::new(write));
@@ -94,22 +107,43 @@ impl<D> SCClient<D> where D: SCClientDelegate {
         }
 
         // Handle events from the server
+        let mut state: Option<State> = None;
         loop {
             let event_xml = Element::read_from(&mut reader)?;
 
             debug!("Got event {}", event_xml);
             match Event::try_from(&event_xml) {
-                Ok(Event::Joined { room_id }) => info!("Joined room {}", room_id),
-                Ok(Event::Left { room_id }) => info!("Left room {}", room_id),
+                Ok(Event::Joined { room_id }) => {
+                    info!("Joined room {}", room_id);
+                },
+                Ok(Event::Left { room_id }) => {
+                    info!("Left room {}", room_id);
+                    break;
+                },
                 Ok(Event::Room { room_id, payload }) => {
-                    info!("Got {:#?} in room {}", payload, room_id);
+                    info!("Got {} in room {}", payload, room_id);
+                    match payload {
+                        EventPayload::Welcome(team) => self.delegate.on_welcome(team),
+                        EventPayload::GameResult(result) => self.delegate.on_game_end(result),
+                        EventPayload::Memento(new_state) => {
+                            self.delegate.on_update_state(&new_state);
+                            state = Some(new_state);
+                        },
+                        EventPayload::MoveRequest => {
+                            let state = state.as_ref().ok_or_else(|| SCError::InvalidState("No state available at move request!".to_owned()))?;
+                            let team = state.current_team().ok_or_else(|| SCError::InvalidState("No team available at move request!".to_owned()))?;
+                            let new_move = self.delegate.request_move(state, team);
+                            let move_xml = Element::from(new_move);
+                            move_xml.write_to(&mut writer)?;
+                        },
+                    };
                 },
                 Err(SCError::UnknownElement(element)) => {
                     warn!("Got unknown tag <{}>: {}", element.name(), element);
                 },
                 Err(e) => {
                     warn!("Error while parsing event: {:?}", e);
-                }
+                },
             }
         }
 
