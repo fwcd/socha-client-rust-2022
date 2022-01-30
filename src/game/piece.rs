@@ -30,6 +30,14 @@ impl Piece {
     /// Number of pieces in this castle.
     #[inline]
     pub fn count(&self) -> usize { self.count }
+
+    /// A new piece that captures the other piece.
+    #[inline]
+    pub fn capture(self, other: Self) -> Self {
+        let mut captured = self;
+        captured.count += other.count;
+        captured
+    }
 }
 
 impl TryFrom<&Element> for Piece {
