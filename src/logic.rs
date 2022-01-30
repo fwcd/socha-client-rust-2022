@@ -1,6 +1,6 @@
 use log::info;
 
-use crate::{client::SCClientDelegate, game::{Move, Team, State, Coords}};
+use crate::{client::SCClientDelegate, game::{Move, Team, State, Vec2}};
 
 /// An empty game logic structure that
 /// implements the client delegate trait
@@ -13,6 +13,6 @@ impl SCClientDelegate for OwnGameLogic {
         info!("Requested move");
 
         // TODO
-        Move::new(Coords::new(0, 0), Coords::new(1, 1))
+        Move::new(Vec2::new(0, 0), Vec2::new(1, 1))
     }
 }

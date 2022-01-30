@@ -1,25 +1,25 @@
 use crate::util::{Element, SCError, SCResult};
 
-use super::Coords;
+use super::Vec2;
 
 /// An action in the game.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Move {
-    from: Coords,
-    to: Coords,
+    from: Vec2,
+    to: Vec2,
 }
 
 impl Move {
     #[inline]
-    pub fn new(from: Coords, to: Coords) -> Self {
+    pub fn new(from: Vec2, to: Vec2) -> Self {
         Self { from, to }
     }
 
     #[inline]
-    pub fn from(self) -> Coords { self.from }
+    pub fn from(self) -> Vec2 { self.from }
 
     #[inline]
-    pub fn to(self) -> Coords { self.to }
+    pub fn to(self) -> Vec2 { self.to }
 }
 
 impl TryFrom<&Element> for Move {
@@ -47,7 +47,7 @@ impl From<Move> for Element {
 mod tests {
     use std::str::FromStr;
 
-    use crate::{util::Element, game::{Move, Coords}};
+    use crate::{util::Element, game::{Move, Vec2}};
 
     #[test]
     fn test_parsing() {
@@ -57,8 +57,8 @@ mod tests {
                 <to x="5" y="9" />
             </data>
         "#).unwrap()).unwrap(), Move {
-            from: Coords::new(3, 4),
-            to: Coords::new(5, 9),
+            from: Vec2::new(3, 4),
+            to: Vec2::new(5, 9),
         });
     }
 }
