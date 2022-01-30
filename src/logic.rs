@@ -10,12 +10,12 @@ use crate::{client::SCClientDelegate, game::{Move, Team, State}};
 pub struct OwnGameLogic;
 
 impl SCClientDelegate for OwnGameLogic {
-    fn request_move(&mut self, state: &State, my_team: Team) -> Move {
+    fn request_move(&mut self, state: &State, _my_team: Team) -> Move {
         info!("Requested move");
         let chosen_move = *state.possible_moves()
             .choose(&mut rand::thread_rng())
             .expect("No move found!");
-        info!("Chose {:?}", chosen_move);
+        info!("Chose move {}", chosen_move);
         chosen_move
     }
 }

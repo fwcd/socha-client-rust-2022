@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::util::{Element, SCError, SCResult};
 
 use super::Vec2;
@@ -23,6 +25,12 @@ impl Move {
 
     #[inline]
     pub fn delta(self) -> Vec2 { self.to - self.from }
+}
+
+impl fmt::Display for Move {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} -> {}", self.from, self.to)
+    }
 }
 
 impl TryFrom<&Element> for Move {
