@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ops::Index};
 
 use crate::util::{Element, SCError, SCResult};
 
@@ -24,6 +24,20 @@ impl Board {
 
     /// The pieces on the board.
     pub fn pieces(&self) -> &HashMap<Vec2, Piece> { &self.pieces }
+
+    /// Fetches a piece on the board.
+    pub fn get(&self, pos: Vec2) -> Option<Piece> { self.pieces.get(&pos).cloned() }
+
+    /// Fetches a piece on the board mutably.
+    pub fn get_mut(&mut self, pos: Vec2) -> Option<&mut Piece> { self.pieces.get_mut(&pos) }
+}
+
+impl Index<Vec2> for Board {
+    type Output = Piece;
+
+    fn index(&self, index: Vec2) -> &Piece {
+        &self.pieces[&index]
+    }
 }
 
 impl TryFrom<&Element> for Board {
