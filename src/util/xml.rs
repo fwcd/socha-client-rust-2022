@@ -2,7 +2,7 @@ use std::borrow::Cow;
 use std::collections::{HashMap, VecDeque};
 use std::convert::TryInto;
 use std::fmt;
-use std::str;
+use std::str::{self, FromStr};
 use std::io::{Write, Cursor, BufRead};
 use log::{warn, error};
 use quick_xml::events::attributes::Attribute;
@@ -145,6 +145,14 @@ impl fmt::Display for Element {
     }
 }
 
+impl FromStr for Element {
+    type Err = SCError;
+
+    fn from_str(s: &str) -> SCResult<Self> {
+        Element::read_from(&mut Reader::from_str(s))
+    }
+}
+
 impl<'a> ElementBuilder<'a> {
     /// Creates a new XML node builder with the
     /// specified tag name.
@@ -248,8 +256,6 @@ impl<'a> From<&'a Element> for BytesStart<'a> {
 
 #[cfg(test)]
 mod tests {
-    use quick_xml::Reader;
-
     use super::Element;
 
     #[test]
@@ -260,6 +266,6 @@ mod tests {
 
     #[test]
     fn test_read() {
-        assert_eq!(Element::read_from(&mut Reader::from_str("<Test/>")).unwrap(), Element::new("Test").build());
+        assert_eq!("<Test/>".parse::<Element>().unwrap(), Element::new("Test").build());
     }
 }
