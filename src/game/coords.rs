@@ -16,10 +16,10 @@ impl Coords {
     }
 
     #[inline]
-    pub fn x(&self) -> usize { self.x }
+    pub fn x(self) -> usize { self.x }
 
     #[inline]
-    pub fn y(&self) -> usize { self.y }
+    pub fn y(self) -> usize { self.y }
 }
 
 impl fmt::Display for Coords {

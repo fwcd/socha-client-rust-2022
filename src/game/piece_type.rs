@@ -17,7 +17,7 @@ pub enum PieceType {
 
 impl PieceType {
     /// Checks whether a piece is lightweight. Only the 'robbe' is non-light.
-    pub fn is_light(&self) -> bool {
+    pub fn is_light(self) -> bool {
         !matches!(self, Self::Robbe)
     }
 }

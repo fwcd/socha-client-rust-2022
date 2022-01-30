@@ -21,15 +21,15 @@ impl Piece {
 
     /// The type of the (topmost) piece.
     #[inline]
-    pub fn piece_type(&self) -> PieceType { self.piece_type }
+    pub fn piece_type(self) -> PieceType { self.piece_type }
 
     /// Which team this piece belongs to.
     #[inline]
-    pub fn team(&self) -> Team { self.team }
+    pub fn team(self) -> Team { self.team }
 
     /// Number of pieces in this castle.
     #[inline]
-    pub fn count(&self) -> usize { self.count }
+    pub fn count(self) -> usize { self.count }
 
     /// A new piece that captures the other piece.
     #[inline]

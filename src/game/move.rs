@@ -16,10 +16,10 @@ impl Move {
     }
 
     #[inline]
-    pub fn from(&self) -> Coords { self.from }
+    pub fn from(self) -> Coords { self.from }
 
     #[inline]
-    pub fn to(&self) -> Coords { self.to }
+    pub fn to(self) -> Coords { self.to }
 }
 
 impl TryFrom<&Element> for Move {
