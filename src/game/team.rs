@@ -4,6 +4,7 @@ use std::fmt;
 use crate::util::{SCError, SCResult};
 
 /// A playing party in the game.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Team {
     One,
     Two,

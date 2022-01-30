@@ -1,6 +1,7 @@
 use crate::util::{Element, SCError, SCResult};
 
 /// The state of the game at a point in time.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct State {
     // TODO
 }

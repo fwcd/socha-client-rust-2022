@@ -1,6 +1,7 @@
 use crate::util::{Element, SCError, SCResult};
 
 /// A game board storing the pieces.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Board {
     // TODO
 }
