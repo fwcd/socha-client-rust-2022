@@ -1,10 +1,10 @@
 use std::net::TcpStream;
 use std::io::{self, BufWriter, BufReader, Read, Write};
-use log::info;
-use quick_xml::events::{Event, BytesStart};
+use log::{info, warn};
+use quick_xml::events::{Event as XmlEvent, BytesStart};
 use quick_xml::{Reader, Writer};
-use crate::protocol::Request;
-use crate::util::{SCResult, Element};
+use crate::protocol::{Request, Event};
+use crate::util::{SCResult, Element, SCError};
 
 /// A handler that implements the game player's
 /// behavior, usually employing some custom move
@@ -68,9 +68,9 @@ impl<D> SCClient<D> where D: SCClientDelegate {
         let mut reader = Reader::from_reader(BufReader::new(read));
 
         let mut writer = Writer::new(BufWriter::new(write));
-        writer.write_event(Event::Start(BytesStart::borrowed_name(b"protocol")))?;
+        writer.write_event(XmlEvent::Start(BytesStart::borrowed_name(b"protocol")))?;
         
-        // Perform handshake
+        // Send join request
 
         let join_xml: Element = match self.reservation_code {
             Some(code) => Request::JoinPrepared { reservation_code: code.to_owned() },
@@ -79,6 +79,23 @@ impl<D> SCClient<D> where D: SCClientDelegate {
 
         info!("Sending join request {}", &join_xml);
         join_xml.write_to(&mut writer)?;
+
+        // Handle events from the server
+
+        loop {
+            let event_xml = Element::read_from(&mut reader)?;
+            match Event::try_from(event_xml) {
+                Ok(Event::Joined { room_id }) => {
+                    info!("Joined room {}", room_id);
+                },
+                Err(SCError::UnknownTag(tag)) => {
+                    warn!("Got unknown tag <{}>", tag);
+                },
+                Err(e) => {
+                    warn!("Error while parsing event: {:?}", e);
+                }
+            }
+        }
 
         Ok(())
     }

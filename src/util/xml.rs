@@ -43,21 +43,8 @@ impl Element {
         
         loop {
             match reader.read_event(&mut buf) {
-                Ok(Event::Start(ref e)) => {
-                    let node = Element {
-                        name: str::from_utf8(e.name())?.to_owned(),
-                        content: String::new(),
-                        attributes: e.attributes()
-                            .into_iter()
-                            .map(|res| {
-                                let attribute = res?;
-                                let key = str::from_utf8(attribute.key)?.to_owned();
-                                let value = str::from_utf8(&attribute.value)?.to_owned();
-                                Ok((key, value))
-                            })
-                            .collect::<SCResult<HashMap<_, _>>>()?,
-                        childs: Vec::new()
-                    };
+                Ok(Event::Start(ref start)) => {
+                    let node = Element::try_from(start)?;
                     node_stack.push_back(node);
                 },
                 Ok(Event::End(ref e)) => {
@@ -88,11 +75,7 @@ impl Element {
     
     /// Serializes the node to an XML string using a tree traversal.
     pub fn write_to<W>(&self, writer: &mut Writer<W>) -> SCResult<()> where W: Write {
-        let start = BytesStart::borrowed_name(self.name.as_bytes())
-            .with_attributes(self.attributes.iter().map(|(k, v)| Attribute {
-                key: k.as_bytes(),
-                value: Cow::Borrowed(v.as_bytes()),
-            }));
+        let start = BytesStart::from(self);
         
         if self.childs.is_empty() {
             // Write self-closing tag, e.g. <Element/>
@@ -221,6 +204,37 @@ impl<'a> Default for ElementBuilder<'a> {
 
 impl<'a> From<ElementBuilder<'a>> for Element {
     fn from(builder: ElementBuilder<'a>) -> Self { builder.build() }
+}
+
+impl<'a> TryFrom<&BytesStart<'a>> for Element {
+    type Error = SCError;
+
+    fn try_from(start: &BytesStart<'a>) -> SCResult<Self> {
+        Ok(Element {
+            name: str::from_utf8(start.name())?.to_owned(),
+            content: String::new(),
+            attributes: start.attributes()
+                .into_iter()
+                .map(|res| {
+                    let attribute = res?;
+                    let key = str::from_utf8(attribute.key)?.to_owned();
+                    let value = str::from_utf8(&attribute.value)?.to_owned();
+                    Ok((key, value))
+                })
+                .collect::<SCResult<HashMap<_, _>>>()?,
+            childs: Vec::new()
+        })
+    }
+}
+
+impl<'a> From<&'a Element> for BytesStart<'a> {
+    fn from(element: &'a Element) -> Self {
+        BytesStart::borrowed_name(element.name.as_bytes())
+            .with_attributes(element.attributes.iter().map(|(k, v)| Attribute {
+                key: k.as_bytes(),
+                value: Cow::Borrowed(v.as_bytes()),
+            }))
+    }
 }
 
 #[cfg(test)]
