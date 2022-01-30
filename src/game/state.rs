@@ -40,3 +40,40 @@ impl TryFrom<&Element> for State {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::{util::Element, game::{Board, State, Team}, hashmap};
+
+    #[test]
+    fn test_parsing() {
+        assert_eq!(State::try_from(&Element::from_str(r#"
+            <state turn="3">
+                <board>
+                    <pieces></pieces>
+                </board>
+                <ambers>
+                    <entry>
+                        <team>ONE</team>
+                        <int>1</int>
+                    </entry>
+                    <entry>
+                        <team>TWO</team>
+                        <int>0</int>
+                    </entry>
+                </ambers>
+            </state>
+        "#).unwrap()).unwrap(), State {
+            board: Board::empty(),
+            ambers: hashmap![
+                Team::One => 1usize,
+                Team::Two => 0usize
+            ],
+            last_move: None,
+            start_team: None,
+            turn: 3,
+        });
+    }
+}

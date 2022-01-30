@@ -14,6 +14,11 @@ pub struct Piece {
 }
 
 impl Piece {
+    /// Creates a new piece.
+    pub fn new(piece_type: PieceType, team: Team, count: usize) -> Self {
+        Self { piece_type, team, count }
+    }
+
     /// The type of the (topmost) piece.
     #[inline]
     pub fn piece_type(&self) -> PieceType { self.piece_type }
