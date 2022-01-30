@@ -47,16 +47,25 @@ impl Element {
                     let node = Element::try_from(start)?;
                     node_stack.push_back(node);
                 },
-                Ok(Event::End(ref e)) => {
+                Ok(Event::Empty(ref start)) => {
+                    let node = Element::try_from(start)?;
+                    if let Some(mut parent) = node_stack.pop_back() {
+                        parent.childs.push(node);
+                        node_stack.push_back(parent);
+                    } else {
+                        break Ok(node);
+                    }
+                },
+                Ok(Event::End(ref end)) => {
                     if let Some(node) = node_stack.pop_back() {
                         if let Some(mut parent) = node_stack.pop_back() {
                             parent.childs.push(node);
                             node_stack.push_back(parent);
                         } else {
-                            return Ok(node);
+                            break Ok(node);
                         }
                     } else {
-                        error!("Found closing element </{}> without an opening element before", str::from_utf8(e.name())?);
+                        error!("Found closing element </{}> without an opening element before", str::from_utf8(end.name())?);
                     }
                 },
                 Ok(Event::Text(ref t)) => {
@@ -67,7 +76,7 @@ impl Element {
                         warn!("Found characters {} outside of any node", content);
                     }
                 },
-                Err(e) => return Err(e.into()),
+                Err(e) => break Err(e.into()),
                 _ => ()
             }
         }
