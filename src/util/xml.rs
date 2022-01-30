@@ -12,7 +12,7 @@ use super::{SCResult, SCError};
 
 /// A deserialized, in-memory tree-representation
 /// of an XML node.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub struct Element {
     name: String,
     content: String,
@@ -248,11 +248,18 @@ impl<'a> From<&'a Element> for BytesStart<'a> {
 
 #[cfg(test)]
 mod tests {
+    use quick_xml::Reader;
+
     use super::Element;
 
     #[test]
     fn test_write() {
         assert_eq!("<Test/>", format!("{}", Element::new("Test").build()));
         assert_eq!("<A><B/><C/></A>", format!("{}", Element::new("A").child(Element::new("B")).child(Element::new("C")).build()))
+    }
+
+    #[test]
+    fn test_read() {
+        assert_eq!(Element::read_from(&mut Reader::from_str("<Test/>")).unwrap(), Element::new("Test").build());
     }
 }
