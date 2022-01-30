@@ -99,9 +99,8 @@ impl<D> SCClient<D> where D: SCClientDelegate {
 
             debug!("Got event {}", event_xml);
             match Event::try_from(event_xml) {
-                Ok(Event::Joined { room_id }) => {
-                    info!("Joined room {}", room_id);
-                },
+                Ok(Event::Joined { room_id }) => info!("Joined room {}", room_id),
+                Ok(Event::Left { room_id }) => info!("Left room {}", room_id),
                 Err(SCError::UnknownTag(element)) => {
                     warn!("Got unknown tag <{}>: {}", element.name(), element);
                 },
