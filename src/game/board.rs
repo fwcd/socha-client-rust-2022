@@ -4,6 +4,8 @@ use crate::util::{Element, SCError, SCResult};
 
 use super::{Vec2, Piece};
 
+pub const BOARD_SIZE: usize = 8;
+
 /// An 8x8 game board storing the pieces (8 pieces per team).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Board {
@@ -30,6 +32,11 @@ impl Board {
 
     /// Fetches a piece on the board mutably.
     pub fn get_mut(&mut self, pos: Vec2) -> Option<&mut Piece> { self.pieces.get_mut(&pos) }
+
+    /// Checks whether a position in in-bounds.
+    pub fn is_in_bounds(pos: Vec2) -> bool {
+        pos.x() >= 0 && pos.x() < BOARD_SIZE as i32 && pos.y() >= 0 && pos.y() < BOARD_SIZE as i32
+    }
 }
 
 impl Index<Vec2> for Board {
