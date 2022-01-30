@@ -13,6 +13,10 @@ pub struct State {
     last_move: Move,
     /// The ambers per team.
     ambers: HashMap<Team, usize>,
+    /// The turn of the game.
+    turn: usize,
+    /// The starting team.
+    start_team: Option<Team>,
 }
 
 impl TryFrom<&Element> for State {
@@ -31,6 +35,8 @@ impl TryFrom<&Element> for State {
                     Ok((team, piece))
                 })
                 .collect::<SCResult<_>>()?,
+            turn: elem.attribute("turn")?.parse()?,
+            start_team: elem.child_by_name("startTeam").ok().and_then(|t| t.content().parse().ok()),
         })
     }
 }
