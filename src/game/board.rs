@@ -1,8 +1,8 @@
-use std::{collections::HashMap, ops::Index};
+use std::{collections::HashMap, ops::Index, assert_matches::assert_matches, slice::SliceIndex};
 
 use crate::util::{Element, SCError, SCResult};
 
-use super::{Vec2, Piece};
+use super::{Vec2, Piece, Move, Team};
 
 pub const BOARD_SIZE: usize = 8;
 
@@ -36,6 +36,59 @@ impl Board {
     /// Checks whether a position in in-bounds.
     pub fn is_in_bounds(pos: Vec2) -> bool {
         pos.x >= 0 && pos.x < BOARD_SIZE as i32 && pos.y >= 0 && pos.y < BOARD_SIZE as i32
+    }
+
+    /// Fetches the x-index of the team's 'home' line.
+    pub fn start_line(team: Team) -> i32 {
+        team.index() * (BOARD_SIZE as i32 - 1)
+    }
+
+    // Partially translated from https://github.com/software-challenge/backend/blob/89407e5e2f76801ec8beb8f31412da218f5f70e5/plugin/src/main/kotlin/sc/plugin2022/Board.kt
+
+    /// Applies a move to the board.
+    pub fn perform(&mut self, m: Move) {
+        if let Some(piece) = self.pieces.remove(&m.from()) {
+            debug_assert!(Board::is_in_bounds(m.to()), "Move destination {} wasn't in bounds!", m.to());
+            debug_assert!(piece.possible_directions().any(|v| v == m.delta()), "Move delta {} isn't in the allowed move for the piece {:?}!", m.delta(), piece);
+            let new_piece = self.pieces.get(&m.to()).map(|&p| piece.capture(p)).unwrap_or(piece);
+            self.pieces.insert(m.to(), new_piece);
+        } else {
+            panic!("Cannot perform empty move!");
+        }
+    }
+
+    /// Checks whether the piece at the given position should be turned
+    /// into an amber and, if so, removes it.
+    pub fn check_amber(&mut self, pos: Vec2) -> usize {
+        if let Some(piece) = self.pieces.get_mut(&pos) {
+            let ambers = [
+                piece.is_amber(),
+                piece.piece_type().is_light() && pos.x == Self::start_line(piece.team().opponent()),
+            ].into_iter().map(|b| if b { 1 } else { 0 }).sum();
+            if ambers > 0 {
+                self.pieces.remove(&pos);
+            }
+            ambers
+        } else {
+            0
+        }
+    }
+
+    /// Checks whether the given piece can jump to the destination, not
+    /// accounting for whether the move itself is valid.
+    pub fn can_move(&self, piece: Piece, dest: Vec2) -> bool {
+        Board::is_in_bounds(dest) && self.pieces.get(&dest).map(|p| p.team()) != Some(piece.team())
+    }
+
+    /// Fetches possible move deltas from the given position.
+    pub fn possible_destinations_from(&self, pos: Vec2) -> Vec<Vec2> {
+        if let Some(piece) = self.get(pos) {
+            piece.possible_directions()
+                .filter(|&v| self.can_move(piece, pos + v))
+                .collect()
+        } else {
+            Vec::new()
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::util::{Element, SCError, SCResult};
 
-use super::{PieceType, Team};
+use super::{PieceType, Team, Vec2};
 
 /// A placeable figure on the board.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -31,12 +31,23 @@ impl Piece {
     #[inline]
     pub fn count(self) -> usize { self.count }
 
-    /// A new piece that captures the other piece.
+    /// Returns whether the piece can be turned into an amber.
     #[inline]
+    pub fn is_amber(self) -> bool { self.count >= 3 }
+
+    /// A new piece that captures the other piece.
     pub fn capture(self, other: Self) -> Self {
         let mut captured = self;
         captured.count += other.count;
         captured
+    }
+
+    /// The directions this piece can move in.
+    pub fn possible_directions(self) -> impl Iterator<Item=Vec2> {
+        let direction = self.team.direction();
+        self.piece_type.possible_directions()
+            .into_iter()
+            .map(move |v| Vec2::new(v.x * direction, v.y))
     }
 }
 

@@ -11,11 +11,27 @@ pub enum Team {
 }
 
 impl Team {
+    /// The team's index.
+    pub fn index(self) -> i32 {
+        match self {
+            Team::One => 0,
+            Team::Two => 1,
+        }
+    }
+
     /// The opponent of the given team.
     pub fn opponent(self) -> Team {
         match self {
             Team::One => Team::Two,
             Team::Two => Team::One,
+        }
+    }
+
+    /// The x-direction of the team on the board.
+    pub fn direction(self) -> i32 {
+        match self {
+            Team::One => 1,
+            Team::Two => -1,
         }
     }
 }

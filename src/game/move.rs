@@ -20,6 +20,9 @@ impl Move {
 
     #[inline]
     pub fn to(self) -> Vec2 { self.to }
+
+    #[inline]
+    pub fn delta(self) -> Vec2 { self.to - self.from }
 }
 
 impl TryFrom<&Element> for Move {
