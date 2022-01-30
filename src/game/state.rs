@@ -52,6 +52,8 @@ impl State {
         Some(if self.turn % 2 == 0 { start_team } else { start_team.opponent() })
     }
 
+    // Partially translated from https://github.com/software-challenge/backend/blob/89407e5e2f76801ec8beb8f31412da218f5f70e5/plugin/src/main/kotlin/sc/plugin2022/GameState.kt
+
     /// Fetches the current team's pieces.
     pub fn current_pieces<'a>(&'a self) -> impl Iterator<Item=(Vec2, Piece)> + 'a {
         let team = self.current_team();
@@ -59,6 +61,15 @@ impl State {
             .iter()
             .filter(move |&(_, piece)| Some(piece.team()) == team)
             .map(|(&pos, &piece)| (pos, piece))
+    }
+
+    /// Fetches the possible moves.
+    pub fn possible_moves(&self) -> Vec<Move> {
+        self.current_pieces()
+            .flat_map(|(pos, piece)| piece.possible_directions()
+                .map(|delta| Move::new(pos, pos + delta))
+                .filter(|m| self.board.get(m.to()).map(|p| p.team()) != Some(piece.team())))
+            .collect()
     }
 
     /// Checks whether the game is over.
