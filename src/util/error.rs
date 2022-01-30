@@ -18,6 +18,7 @@ pub enum SCError {
     Utf8(Utf8Error),
     Xml(XmlError),
     UnknownElement(Element),
+    UnknownVariant(String),
     Eof,
     Custom(String)
 }
