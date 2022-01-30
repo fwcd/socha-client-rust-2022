@@ -22,6 +22,12 @@ impl Coords {
     pub fn y(&self) -> usize { self.y }
 }
 
+impl fmt::Display for Coords {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
 impl TryFrom<&Element> for Coords {
     type Error = SCError;
 
