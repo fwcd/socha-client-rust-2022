@@ -28,3 +28,23 @@ impl From<Move> for Element {
             .build()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::{util::Element, game::{Move, Coords}};
+
+    #[test]
+    fn test_parsing() {
+        assert_eq!(Move::try_from(&Element::from_str(r#"
+            <data class="move">
+                <from x="3" y="4" />
+                <to x="5" y="9" />
+            </data>
+        "#).unwrap()).unwrap(), Move {
+            from: Coords::new(3, 4),
+            to: Coords::new(5, 9),
+        });
+    }
+}
