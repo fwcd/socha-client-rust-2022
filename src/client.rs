@@ -26,33 +26,22 @@ pub struct DebugMode {
 pub struct SCClient<D> where D: SCClientDelegate {
     delegate: D,
     debug_mode: DebugMode,
+    reservation_code: Option<String>,
     // TODO: Add game state
 }
 
 impl<D> SCClient<D> where D: SCClientDelegate {
     /// Creates a new client using the specified delegate.
-    pub fn new(delegate: D, debug_mode: DebugMode) -> Self {
-        Self { delegate, debug_mode }
+    pub fn new(delegate: D, debug_mode: DebugMode, reservation_code: Option<String>) -> Self {
+        Self { delegate, debug_mode, reservation_code }
     }
     
     /// Blocks the thread and begins reading XML messages
     /// from the provided address via TCP.
-    pub fn run(self, host: &str, port: u16, reservation: Option<&str>) -> SCResult<()> {
+    pub fn connect(self, host: &str, port: u16) -> SCResult<()> {
         let address = format!("{}:{}", host, port);
         let stream = TcpStream::connect(&address)?;
         info!("Connected to {}", address);
-        
-        {
-            let mut writer = Writer::new(BufWriter::new(&stream));
-            writer.write_event(Event::Start(BytesStart::borrowed_name(b"protocol")))?;
-            
-            let join_xml: Element = match reservation {
-                Some(code) => Request::JoinPrepared { reservation_code: code.to_owned() },
-                None => Request::Join,
-            }.into();
-            info!("Sending join request {}", &join_xml);
-            join_xml.write_to(&mut writer)?;
-        }
         
         // Begin parsing game messages from the stream.
         // List all combinations of modes explicitly,
@@ -61,15 +50,13 @@ impl<D> SCClient<D> where D: SCClientDelegate {
 
         let mode = &self.debug_mode;
         if mode.debug_reader && !mode.debug_writer {
-            self.run_game(io::stdin(), BufWriter::new(stream))?;
+            self.run(io::stdin(), stream)?;
         } else if !mode.debug_reader && mode.debug_writer {
-            self.run_game(BufReader::new(stream), io::stdout())?;
+            self.run(stream, io::stdout())?;
         } else if mode.debug_reader && mode.debug_writer {
-            self.run_game(io::stdin(), io::stdout())?;
+            self.run(io::stdin(), io::stdout())?;
         } else {
-            let reader = BufReader::new(stream.try_clone()?);
-            let writer = BufWriter::new(stream);
-            self.run_game(reader, writer)?;
+            self.run(stream.try_clone()?, stream)?;
         }
         
         Ok(())
@@ -77,8 +64,22 @@ impl<D> SCClient<D> where D: SCClientDelegate {
     
     /// Blocks the thread and parses/handles game messages
     /// from the provided reader.
-    fn run_game(mut self, reader: impl Read, writer: impl Write) -> SCResult<()> {
-        // TODO: Implement client loop
+    fn run(self, read: impl Read, write: impl Write) -> SCResult<()> {
+        let mut reader = Reader::from_reader(BufReader::new(read));
+
+        let mut writer = Writer::new(BufWriter::new(write));
+        writer.write_event(Event::Start(BytesStart::borrowed_name(b"protocol")))?;
+        
+        // Perform handshake
+
+        let join_xml: Element = match self.reservation_code {
+            Some(code) => Request::JoinPrepared { reservation_code: code.to_owned() },
+            None => Request::Join,
+        }.into();
+
+        info!("Sending join request {}", &join_xml);
+        join_xml.write_to(&mut writer)?;
+
         Ok(())
     }
 }
