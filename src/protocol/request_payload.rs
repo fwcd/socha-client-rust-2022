@@ -1,11 +1,10 @@
-use crate::util::Element;
+use crate::{util::Element, game::Move};
 
 /// The actual data of a message to the server.
 #[derive(Debug, Clone)]
 pub enum RequestPayload {
     /// A move to be performed.
-    /// TODO: Add actual move
-    Move,
+    Move(Move),
 }
 
 impl From<RequestPayload> for Element {
@@ -13,8 +12,9 @@ impl From<RequestPayload> for Element {
         let mut element = Element::new("data");
 
         element = match payload {
-            RequestPayload::Move => element
-                .attribute("class", "move"),
+            RequestPayload::Move(m) => element
+                .attribute("class", "move")
+                .child(m),
         };
 
         element.build()
