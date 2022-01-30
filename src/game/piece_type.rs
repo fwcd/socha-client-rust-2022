@@ -4,7 +4,7 @@ use std::fmt;
 use crate::util::{SCError, SCResult};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-enum PieceType {
+pub enum PieceType {
     /// Moves only diagonally forwards.
     Herzmuschel,
     /// Moves only to adjacent fields.
