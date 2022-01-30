@@ -19,6 +19,28 @@ pub struct State {
     start_team: Option<Team>,
 }
 
+impl State {
+    /// The game board.
+    #[inline]
+    pub fn board(&self) -> &Board { &self.board }
+
+    /// The ambers per team.
+    #[inline]
+    pub fn ambera(&self) -> &HashMap<Team, usize> { &self.ambers }
+
+    /// The turn of the game.
+    #[inline]
+    pub fn turn(&self) -> usize { self.turn }
+
+    /// The most recent move, if available.
+    #[inline]
+    pub fn last_move(&self) -> Option<Move> { self.last_move }
+
+    /// The starting team, if available.
+    #[inline]
+    pub fn start_team(&self) -> Option<Team> { self.start_team }
+}
+
 impl TryFrom<&Element> for State {
     type Error = SCError;
 

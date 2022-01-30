@@ -1,6 +1,6 @@
 use crate::{util::Element, game::Move};
 
-/// The actual data of a message to the server.
+/// The data of a room message to the server.
 #[derive(Debug, Clone)]
 pub enum RequestPayload {
     /// A move to be performed.
