@@ -9,7 +9,7 @@ pub struct Piece {
     piece_type: PieceType,
     /// Which team this piece belongs to.
     team: Team,
-    /// Number of pieces in this castle.
+    /// Number of pieces in this tower.
     count: usize,
 }
 
@@ -27,7 +27,7 @@ impl Piece {
     #[inline]
     pub fn team(self) -> Team { self.team }
 
-    /// Number of pieces in this castle.
+    /// Number of pieces in this tower.
     #[inline]
     pub fn count(self) -> usize { self.count }
 
