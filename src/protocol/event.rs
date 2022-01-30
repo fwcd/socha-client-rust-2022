@@ -9,7 +9,7 @@ pub enum Event {
     Joined { room_id: String },
     /// Notifies the client that they left a room.
     Left { room_id: String },
-    /// A room message.
+    /// A message in a room.
     Room { room_id: String, payload: EventPayload },
 }
 

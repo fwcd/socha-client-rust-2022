@@ -2,7 +2,7 @@ use std::fmt;
 
 use crate::util::{Element, SCResult, SCError};
 
-/// The actual data of a message.
+/// The actual data of a message from the server.
 #[derive(Debug, Clone)]
 pub enum EventPayload {
     Welcome,
