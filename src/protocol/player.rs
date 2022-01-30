@@ -2,18 +2,18 @@ use crate::{game::Team, util::{Element, SCError, SCResult}};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Player {
-    name: String,
+    name: Option<String>,
     team: Team,
 }
 
 impl Player {
     #[inline]
-    pub fn new(name: &str, team: Team) -> Self {
-        Self { name: name.to_owned(), team }
+    pub fn new(name: Option<&str>, team: Team) -> Self {
+        Self { name: name.map(|n| n.to_string()), team }
     }
 
     #[inline]
-    pub fn name(&self) -> &str { self.name.as_str() }
+    pub fn name(&self) -> Option<&str> { self.name.as_ref().map(|n| n.as_str()) }
 
     #[inline]
     pub fn team(&self) -> Team { self.team }
@@ -24,7 +24,7 @@ impl TryFrom<&Element> for Player {
 
     fn try_from(elem: &Element) -> SCResult<Self> {
         Ok(Player {
-            name: elem.attribute("name")?.to_owned(),
+            name: elem.attribute("name").ok().map(|s| s.to_owned()),
             team: elem.attribute("team")?.parse()?,
         })
     }
@@ -40,6 +40,10 @@ mod tests {
     fn test_parsing() {
         assert_eq!(Player::try_from(&Element::from_str(r#"
             <player name="Alice" team="ONE" />
-        "#).unwrap()).unwrap(), Player::new("Alice", Team::One));
+        "#).unwrap()).unwrap(), Player::new(Some("Alice"), Team::One));
+
+        assert_eq!(Player::try_from(&Element::from_str(r#"
+            <player team="TWO" />
+        "#).unwrap()).unwrap(), Player::new(None, Team::Two));
     }
 }
