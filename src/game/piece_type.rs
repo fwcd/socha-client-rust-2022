@@ -1,7 +1,9 @@
-use std::str::FromStr;
+use std::{str::FromStr, iter::once};
 use std::fmt;
 
 use crate::util::{SCError, SCResult};
+
+use super::{Vec2, CARDINALS, DIAGONALS};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum PieceType {
@@ -17,8 +19,22 @@ pub enum PieceType {
 
 impl PieceType {
     /// Checks whether a piece is lightweight. Only the 'robbe' is non-light.
+    #[inline]
     pub fn is_light(self) -> bool {
         !matches!(self, Self::Robbe)
+    }
+
+    /// The directions in which this piece is allowed to move.
+    pub fn possible_directions(self) -> Vec<Vec2> {
+        match self {
+            Self::Herzmuschel => vec![Vec2::new(1, 1), Vec2::new(1, -1)],
+            Self::Moewe => CARDINALS.into_iter().collect(),
+            Self::Seestern => DIAGONALS.into_iter().chain(once(Vec2::new(1, 0))).collect(),
+            Self::Robbe => DIAGONALS.into_iter().flat_map(|v| [
+                Vec2::new(2 * v.x(), v.y()),
+                Vec2::new(v.x(), 2 * v.y()),
+            ].into_iter()).collect(),
+        }
     }
 }
 
