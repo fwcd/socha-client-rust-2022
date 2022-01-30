@@ -68,7 +68,7 @@ impl State {
         self.current_pieces()
             .flat_map(|(pos, piece)| piece.possible_directions()
                 .map(move |delta| Move::new(pos, pos + delta))
-                .filter(move |m| self.board.get(m.to()).map(|p| p.team()) != Some(piece.team())))
+                .filter(move |m| Board::is_in_bounds(m.to()) && self.board.get(m.to()).map(|p| p.team()) != Some(piece.team())))
             .collect()
     }
 
