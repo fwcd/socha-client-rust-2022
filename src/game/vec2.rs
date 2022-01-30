@@ -21,8 +21,8 @@ pub const DIAGONALS: [Vec2; 4] = [
 /// A position on the board or 2D integer vector.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Vec2 {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 impl Vec2 {
@@ -37,14 +37,6 @@ impl Vec2 {
     pub fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
-
-    /// The x-component of this 2D vector.
-    #[inline]
-    pub fn x(self) -> i32 { self.x }
-
-    /// The y-component of this 2D vector.
-    #[inline]
-    pub fn y(self) -> i32 { self.y }
 
     /// The area of the rectangle spanned by this vector.
     #[inline]

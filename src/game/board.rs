@@ -35,7 +35,7 @@ impl Board {
 
     /// Checks whether a position in in-bounds.
     pub fn is_in_bounds(pos: Vec2) -> bool {
-        pos.x() >= 0 && pos.x() < BOARD_SIZE as i32 && pos.y() >= 0 && pos.y() < BOARD_SIZE as i32
+        pos.x >= 0 && pos.x < BOARD_SIZE as i32 && pos.y >= 0 && pos.y < BOARD_SIZE as i32
     }
 }
 

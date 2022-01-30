@@ -31,8 +31,8 @@ impl PieceType {
             Self::Moewe => CARDINALS.into_iter().collect(),
             Self::Seestern => DIAGONALS.into_iter().chain(once(Vec2::new(1, 0))).collect(),
             Self::Robbe => DIAGONALS.into_iter().flat_map(|v| [
-                Vec2::new(2 * v.x(), v.y()),
-                Vec2::new(v.x(), 2 * v.y()),
+                Vec2::new(2 * v.x, v.y),
+                Vec2::new(v.x, 2 * v.y),
             ].into_iter()).collect(),
         }
     }

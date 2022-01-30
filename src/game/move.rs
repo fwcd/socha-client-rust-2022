@@ -37,8 +37,8 @@ impl From<Move> for Element {
     fn from(m: Move) -> Self {
         Element::new("data")
             .attribute("class", "move")
-            .child(Element::new("from").attribute("x", m.from.x()).attribute("y", m.from.y()))
-            .child(Element::new("to").attribute("x", m.to.x()).attribute("y", m.to.y()))
+            .child(Element::new("from").attribute("x", m.from.x).attribute("y", m.from.y))
+            .child(Element::new("to").attribute("x", m.to.x).attribute("y", m.to.y))
             .build()
     }
 }
