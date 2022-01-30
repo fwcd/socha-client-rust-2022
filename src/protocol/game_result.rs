@@ -8,12 +8,12 @@ use super::{ScoreDefinition, Player, Score};
 pub struct GameResult {
     definition: ScoreDefinition,
     scores: HashMap<Player, Score>,
-    winner: Player,
+    winner: Option<Player>,
 }
 
 impl GameResult {
     #[inline]
-    pub fn new(definition: ScoreDefinition, scores: impl Into<HashMap<Player, Score>>, winner: Player) -> Self {
+    pub fn new(definition: ScoreDefinition, scores: impl Into<HashMap<Player, Score>>, winner: Option<Player>) -> Self {
         Self { definition, scores: scores.into(), winner }
     }
 
@@ -24,7 +24,7 @@ impl GameResult {
     pub fn scores(&self) -> &HashMap<Player, Score> { &self.scores }
 
     #[inline]
-    pub fn winner(&self) -> &Player { &self.winner }
+    pub fn winner(&self) -> &Option<Player> { &self.winner }
 }
 
 impl TryFrom<&Element> for GameResult {
@@ -42,7 +42,7 @@ impl TryFrom<&Element> for GameResult {
                     Ok((player, score))
                 })
                 .collect::<SCResult<_>>()?,
-            winner: elem.child_by_name("winner")?.try_into()?,
+            winner: elem.child_by_name("winner").ok().and_then(|w| w.try_into().ok()),
         })
     }
 }
@@ -94,7 +94,7 @@ mod tests {
                 Player::new(Some("rad"), Team::One) => Score::new(ScoreCause::Regular, "", [2, 27]),
                 Player::new(Some("blues"), Team::Two) => Score::new(ScoreCause::Left, "Player left", [0, 15])
             ],
-            Player::new(None, Team::One)
+            Some(Player::new(None, Team::One))
         ));
     }
 }

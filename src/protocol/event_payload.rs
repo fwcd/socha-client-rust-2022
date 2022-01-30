@@ -23,7 +23,11 @@ impl fmt::Display for EventPayload {
             Self::Welcome => write!(f, "Welcome"),
             Self::Memento(state) => write!(f, "Memento (turn: {})", state.turn()),
             Self::MoveRequest => write!(f, "MoveRequest"),
-            Self::GameResult(result) => write!(f, "GameResult (winner: {})", result.winner().team()),
+            Self::GameResult(result) => write!(f, "GameResult (winner: {})", result
+                .winner()
+                .as_ref()
+                .map(|w| format!("{}", w.team()))
+                .unwrap_or_else(|| "none".to_owned())),
         }
     }
 }
