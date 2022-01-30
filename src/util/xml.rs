@@ -197,8 +197,8 @@ impl<'a> ElementBuilder<'a> {
     }
     
     /// Adds the specified attribute.
-    pub fn attribute(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
-        self.attributes.insert(key.into(), value.into());
+    pub fn attribute(mut self, key: impl ToString, value: impl ToString) -> Self {
+        self.attributes.insert(key.to_string(), value.to_string());
         self
     }
     
