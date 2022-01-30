@@ -1,6 +1,6 @@
 use std::net::TcpStream;
 use std::io::{self, BufWriter, BufReader, Read, Write};
-use log::{info, warn};
+use log::{info, warn, debug};
 use quick_xml::events::{Event as XmlEvent, BytesStart};
 use quick_xml::{Reader, Writer};
 use crate::protocol::{Request, Event};
@@ -83,6 +83,7 @@ impl<D> SCClient<D> where D: SCClientDelegate {
         // Handle events from the server
 
         loop {
+            debug!("Reading event...");
             let event_xml = Element::read_from(&mut reader)?;
             match Event::try_from(event_xml) {
                 Ok(Event::Joined { room_id }) => {

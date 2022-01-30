@@ -1,10 +1,10 @@
 use std::borrow::Cow;
 use std::collections::{HashMap, VecDeque};
 use std::convert::TryInto;
-use std::fmt;
+use std::fmt::{self, Debug};
 use std::str::{self, FromStr};
 use std::io::{Write, Cursor, BufRead};
-use log::{warn, error};
+use log::{warn, error, info, debug, trace};
 use quick_xml::events::attributes::Attribute;
 use quick_xml::events::{Event, BytesStart, BytesText, BytesEnd};
 use quick_xml::{Reader, Writer};
@@ -41,13 +41,15 @@ impl Element {
         let mut node_stack = VecDeque::<Element>::new();
         let mut buf = Vec::new();
         
-        loop {
+        let element = loop {
             match reader.read_event(&mut buf) {
                 Ok(Event::Start(ref start)) => {
+                    trace!("Read start event");
                     let node = Element::try_from(start)?;
                     node_stack.push_back(node);
                 },
                 Ok(Event::Empty(ref start)) => {
+                    trace!("Read empty event");
                     let node = Element::try_from(start)?;
                     if let Some(mut parent) = node_stack.pop_back() {
                         parent.childs.push(node);
@@ -57,6 +59,7 @@ impl Element {
                     }
                 },
                 Ok(Event::End(ref end)) => {
+                    trace!("Read end event");
                     if let Some(node) = node_stack.pop_back() {
                         if let Some(mut parent) = node_stack.pop_back() {
                             parent.childs.push(node);
@@ -69,6 +72,7 @@ impl Element {
                     }
                 },
                 Ok(Event::Text(ref t)) => {
+                    trace!("Read text event");
                     let content = str::from_utf8(t)?;
                     if let Some(node) = node_stack.back_mut() {
                         node.content += content;
@@ -76,14 +80,26 @@ impl Element {
                         warn!("Found characters {} outside of any node", content);
                     }
                 },
+                Ok(Event::Eof) => break Err(SCError::Eof),
                 Err(e) => break Err(e.into()),
-                _ => ()
+                ev => info!("Read other event: {:?}", ev),
             }
-        }
+        }?;
+
+        debug!("Read {}", element);
+        Ok(element)
     }
     
     /// Serializes the node to an XML string using a tree traversal.
     pub fn write_to<W>(&self, writer: &mut Writer<W>) -> SCResult<()> where W: Write {
+        self.write_to_impl(writer)?;
+        writer.inner().flush()?;
+
+        debug!("Wrote {}", self);
+        Ok(())
+    }
+
+    fn write_to_impl<W>(&self, writer: &mut Writer<W>) -> SCResult<()> where W: Write {
         let start = BytesStart::from(self);
         
         if self.childs.is_empty() {
