@@ -4,7 +4,7 @@ use log::{info, warn, debug};
 use quick_xml::events::{Event as XmlEvent, BytesStart};
 use quick_xml::{Reader, Writer};
 use crate::game::{State, Team, Move};
-use crate::protocol::{Request, Event, GameResult, EventPayload};
+use crate::protocol::{Request, Event, GameResult, EventPayload, RequestPayload};
 use crate::util::{SCResult, Element, SCError};
 
 /// A handler that implements the game player's
@@ -133,8 +133,9 @@ impl<D> SCClient<D> where D: SCClientDelegate {
                             let state = state.as_ref().ok_or_else(|| SCError::InvalidState("No state available at move request!".to_owned()))?;
                             let team = state.current_team().ok_or_else(|| SCError::InvalidState("No team available at move request!".to_owned()))?;
                             let new_move = self.delegate.request_move(state, team);
-                            let move_xml = Element::from(new_move);
-                            move_xml.write_to(&mut writer)?;
+                            let request = Request::Room { room_id, payload: RequestPayload::Move(new_move) };
+                            let request_xml = Element::from(request);
+                            request_xml.write_to(&mut writer)?;
                         },
                     };
                 },

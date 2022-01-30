@@ -9,14 +9,8 @@ pub enum RequestPayload {
 
 impl From<RequestPayload> for Element {
     fn from(payload: RequestPayload) -> Self {
-        let mut element = Element::new("data");
-
-        element = match payload {
-            RequestPayload::Move(m) => element
-                .attribute("class", "move")
-                .child(m),
-        };
-
-        element.build()
+        match payload {
+            RequestPayload::Move(m) => m.into(),
+        }
     }
 }
