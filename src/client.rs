@@ -102,7 +102,7 @@ impl<D> SCClient<D> where D: SCClientDelegate {
                 Ok(Event::Joined { room_id }) => info!("Joined room {}", room_id),
                 Ok(Event::Left { room_id }) => info!("Left room {}", room_id),
                 Ok(Event::Room { room_id, payload }) => {
-                    info!("Got message in room {}", room_id);
+                    info!("Got {} in room {}", payload, room_id);
                 },
                 Err(SCError::UnknownElement(element)) => {
                     warn!("Got unknown tag <{}>: {}", element.name(), element);

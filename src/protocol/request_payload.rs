@@ -3,7 +3,7 @@ use crate::util::Element;
 /// The actual data of a message to the server.
 #[derive(Debug, Clone)]
 pub enum RequestPayload {
-    MoveRequest,
+    Move,
 }
 
 impl From<RequestPayload> for Element {
@@ -11,8 +11,8 @@ impl From<RequestPayload> for Element {
         let mut element = Element::new("data");
 
         element = match payload {
-            RequestPayload::MoveRequest => element
-                .attribute("class", "moveRequest"),
+            RequestPayload::Move => element
+                .attribute("class", "move"),
         };
 
         element.build()

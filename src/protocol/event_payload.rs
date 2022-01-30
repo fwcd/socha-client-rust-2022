@@ -7,6 +7,7 @@ use crate::util::{Element, SCResult, SCError};
 pub enum EventPayload {
     Welcome,
     Memento,
+    MoveRequest,
 }
 
 impl fmt::Display for EventPayload {
@@ -14,6 +15,7 @@ impl fmt::Display for EventPayload {
         match self {
             Self::Welcome => write!(f, "Welcome"),
             Self::Memento => write!(f, "Memento"),
+            Self::MoveRequest => write!(f, "MoveRequest"),
         }
     }
 }
@@ -25,6 +27,7 @@ impl TryFrom<&Element> for EventPayload {
         match elem.attribute("class")? {
             "welcomeMessage" => Ok(Self::Welcome),
             "memento" => Ok(Self::Memento),
+            "moveRequest" => Ok(Self::MoveRequest),
             _ => Err(SCError::UnknownElement(elem.clone())),
         }
     }
