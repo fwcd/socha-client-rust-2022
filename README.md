@@ -16,7 +16,7 @@ cargo build --release
 
 ## Running
 
-First make sure to have the game server for Hive running (you can [download a copy from GitHub here](https://github.com/software-challenge/backend/releases/tag/20.final)).
+First make sure to have the game server for Ostseeschach running (you can [download a copy from GitHub here](https://github.com/software-challenge/backend/releases/tag/22.1.0)).
 
 To start an instance of the client, you can now run
 
