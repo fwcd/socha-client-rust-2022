@@ -15,7 +15,7 @@ pub trait SCClientDelegate {
     fn on_update_state(&mut self, _state: &State) {}
     
     /// Invoked when the game ends.
-    fn on_game_end(&mut self, _result: GameResult) {}
+    fn on_game_end(&mut self, _result: &GameResult) {}
     
     /// Invoked when the welcome message is received
     /// with the player's team.
@@ -51,7 +51,7 @@ impl<D> SCClient<D> where D: SCClientDelegate {
     
     /// Blocks the thread and begins reading XML messages
     /// from the provided address via TCP.
-    pub fn connect(self, host: &str, port: u16) -> SCResult<()> {
+    pub fn connect(self, host: &str, port: u16) -> SCResult<GameResult> {
         let address = format!("{}:{}", host, port);
         let stream = TcpStream::connect(&address)?;
         info!("Connected to {}", address);
@@ -62,22 +62,22 @@ impl<D> SCClient<D> where D: SCClientDelegate {
         // of `run_game`.
 
         let mode = &self.debug_mode;
-        if mode.debug_reader && !mode.debug_writer {
-            self.run(io::stdin(), stream)?;
+        let game_result = if mode.debug_reader && !mode.debug_writer {
+            self.run(io::stdin(), stream)?
         } else if !mode.debug_reader && mode.debug_writer {
-            self.run(stream, io::stdout())?;
+            self.run(stream, io::stdout())?
         } else if mode.debug_reader && mode.debug_writer {
-            self.run(io::stdin(), io::stdout())?;
+            self.run(io::stdin(), io::stdout())?
         } else {
-            self.run(stream.try_clone()?, stream)?;
-        }
+            self.run(stream.try_clone()?, stream)?
+        };
         
-        Ok(())
+        Ok(game_result)
     }
     
     /// Blocks the thread and parses/handles game messages
     /// from the provided reader.
-    fn run(mut self, read: impl Read, write: impl Write) -> SCResult<()> {
+    fn run(mut self, read: impl Read, write: impl Write) -> SCResult<GameResult> {
         let mut buf = Vec::new();
         let mut reader = Reader::from_reader(BufReader::new(read));
         let mut writer = Writer::new(BufWriter::new(write));
@@ -108,6 +108,7 @@ impl<D> SCClient<D> where D: SCClientDelegate {
 
         // Handle events from the server
         let mut state: Option<State> = None;
+        let mut game_result: Option<GameResult> = None;
         loop {
             let event_xml = Element::read_from(&mut reader)?;
 
@@ -124,7 +125,10 @@ impl<D> SCClient<D> where D: SCClientDelegate {
                     info!("Got {} in room {}", payload, room_id);
                     match payload {
                         EventPayload::Welcome(team) => self.delegate.on_welcome(team),
-                        EventPayload::GameResult(result) => self.delegate.on_game_end(result),
+                        EventPayload::GameResult(result) => {
+                            self.delegate.on_game_end(&result);
+                            game_result = Some(result);
+                        },
                         EventPayload::Memento(new_state) => {
                             self.delegate.on_update_state(&new_state);
                             state = Some(new_state);
@@ -151,6 +155,10 @@ impl<D> SCClient<D> where D: SCClientDelegate {
             }
         }
 
-        Ok(())
+        if let Some(result) = game_result {
+            Ok(result)
+        }else {
+            Err(SCError::InvalidState("Failed to receive game_result".to_string()))
+        }
     }
 }
