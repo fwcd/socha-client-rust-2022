@@ -44,5 +44,5 @@ fn main() {
     };
     let client = SCClient::new(OwnGameLogic, debug_mode, reservation);
     
-    client.connect(&host, port).expect("Error while running client.");
+    let _result = client.connect(&host, port).expect("Error while running client.");
 }
